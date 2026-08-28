@@ -1,0 +1,32 @@
+{
+    "name": "chronhub/storm-aggregate",
+    "description": "Storm Aggregate — event-sourced aggregate roots and typed identities.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["ddd", "cqrs", "event-sourcing", "aggregate"],
+    "require": {
+        "php": ">=8.5",
+        "chronhub/storm-contracts": "self.version",
+        "symfony/uid": "^8.1"
+    },
+    "require-dev": {
+        "chronhub/storm-aggregate-repository": "self.version",
+        "phpstan/phpstan": "^2.2.8",
+        "phpunit/phpunit": "^13.3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Storm\\Aggregate\\": "./"
+        },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Storm\\Aggregate\\Tests\\": "Tests/"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
