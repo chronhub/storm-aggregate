@@ -130,8 +130,8 @@ trait AggregateRootBehavior
     }
 
     /**
-     * Seed the version after a snapshot restore, then replay the post-snapshot events,
-     * applied but never re-recorded. The `SnapshotBehavior` reconstruction path uses this;
+     * Replay the post-snapshot events without re-recording them, then publish the final version
+     * after validating the claimed count. The `SnapshotBehavior` reconstruction path uses this;
      * `$after`'s return value is the aggregate's true current version, provided by the
      * repository.
      *

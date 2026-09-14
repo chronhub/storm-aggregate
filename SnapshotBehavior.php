@@ -14,7 +14,7 @@ use Storm\Contracts\Message\DomainEvent;
 
 /**
  * Default `SnapshotableAggregateRoot` reconstruction. Use alongside `AggregateRootBehavior`, which
- * provides `reconstituteFromSnapshot`; seed the version, then replay the later events.
+ * provides `reconstituteFromSnapshot`; replay the later events, then publish the final version.
  *
  * The aggregate implements `SnapshotableAggregateRoot::toSnapshot()` for export and the protected
  * `restoreState()` for import, and overrides `currentSnapshotVersion()` whenever the state shape
@@ -30,7 +30,7 @@ trait SnapshotBehavior
     /**
      * Restore the aggregate's fields from a snapshot state array, the inverse of
      * `SnapshotableAggregateRoot::toSnapshot()`. The identity is already set by the constructor, and
-     * the version is seeded by `fromSnapshot()`.
+     * the public version remains transient until reconstitution completes successfully.
      *
      * Validate strictly: a snapshot is only a cache, so a missing or mistyped field is a corrupt
      * cache row, not a value to coerce. Throw an implementation of the `InvalidSnapshotState`
@@ -45,7 +45,7 @@ trait SnapshotBehavior
     abstract protected function restoreState(array $state): void;
 
     /**
-     * Seed version and replay post-snapshot events; provided by `AggregateRootBehavior`.
+     * Replay post-snapshot events and publish the final version; provided by `AggregateRootBehavior`.
      *
      * @param  int<1, max>  $version
      * @param  Generator<int, DomainEvent, null, int>  $after
