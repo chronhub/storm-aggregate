@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Storm\Aggregate\Exception;
 
 use LogicException;
+use Storm\Support\Text\Str;
 
 /**
  * Thrown when an aggregate replays an event for which it declares no `apply{EventName}` method, a
@@ -20,9 +21,9 @@ final class MissingApplyMethod extends LogicException
         return new self(sprintf(
             'Aggregate %s cannot apply %s (id %s): no %s() method declared.',
             $aggregateClass,
-            addcslashes($eventClass, "\0..\37\177"),
+            Str::printable($eventClass),
             $aggregateId,
-            addcslashes($method, "\0..\37\177"),
+            Str::printable($method),
         ));
     }
 }

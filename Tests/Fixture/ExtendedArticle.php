@@ -29,7 +29,7 @@ final class ExtendedArticle extends ArticleBase
     public static function draft(ArticleId $id, string $title): static
     {
         $article = new self($id);
-        $article->recordThat(new ArticleDrafted($id->toString(), $title));
+        $article->recordThat(ArticleDrafted::with($id, $title));
 
         return $article;
     }
@@ -42,7 +42,7 @@ final class ExtendedArticle extends ArticleBase
      */
     public static function fromLegacyState(ArticleId $id, string $title, int $version, Generator $after): static
     {
-        $article = new static($id);
+        $article = new self($id);
         $article->title = $title;
         $article->reconstituteFromSnapshot($version, $after);
 

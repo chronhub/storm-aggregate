@@ -4,30 +4,34 @@ declare(strict_types=1);
 
 namespace Storm\Aggregate\Tests\Fixture;
 
+use DomainException;
 use Storm\Aggregate\AggregateRootBehavior;
 use Storm\Contracts\Aggregate\AggregateRoot;
 
 /**
- * A small event-sourced aggregate exercising the trait: a business factory that records
- * the creation event, a command that records another, and `apply{Event}` mutations.
- *
  * @implements AggregateRoot<ArticleId>
  */
-final class Article implements AggregateRoot
+final class ScenarioArticle implements AggregateRoot
 {
     /** @use AggregateRootBehavior<ArticleId> */
     use AggregateRootBehavior;
 
-    private string $title = '';
+    public private(set) string $title = '';
 
     public private(set) bool $published = false;
 
-    public static function draft(ArticleId $id, string $title): self
+    public static function draft(): self
     {
-        $article = new self($id);
-        $article->recordThat(ArticleDrafted::with($id, $title));
+        $article = new self(ArticleId::generate());
+        $article->recordThat(ArticleDrafted::with($article->identity(), 'Initial'));
 
         return $article;
+    }
+
+    public function renameAndPublish(): void
+    {
+        $this->recordThat(ArticleDrafted::with($this->identity(), 'Revised'));
+        $this->recordThat(ArticlePublished::with($this->identity()));
     }
 
     public function publish(): void
@@ -35,9 +39,11 @@ final class Article implements AggregateRoot
         $this->recordThat(ArticlePublished::with($this->identity()));
     }
 
-    public function title(): string
+    public function publishThenReject(DomainException $rejection): void
     {
-        return $this->title;
+        $this->publish();
+
+        throw $rejection;
     }
 
     protected function applyArticleDrafted(ArticleDrafted $event): void

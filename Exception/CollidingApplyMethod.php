@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Storm\Aggregate\Exception;
 
 use LogicException;
+use Storm\Support\Text\Str;
 
 /**
  * Thrown when convention dispatch resolves an apply method declared for ANOTHER event class, the
@@ -20,9 +21,9 @@ final class CollidingApplyMethod extends LogicException
         return new self(sprintf(
             'Aggregate %s cannot apply %s (id %s): %s() is declared for %s; event short names must be unique per aggregate.',
             $aggregateClass,
-            addcslashes($eventClass, "\0..\37\177"),
+            Str::printable($eventClass),
             $aggregateId,
-            addcslashes($method, "\0..\37\177"),
+            Str::printable($method),
             $declaredClass,
         ));
     }

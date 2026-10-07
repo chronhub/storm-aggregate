@@ -51,7 +51,7 @@ final class SnapshotBehaviorTest extends TestCase
 
         // drafted snapshot @1, then publish @2 replayed on top
         $id = ArticleId::generate();
-        $article = SnapshotArticle::fromSnapshot($id, $state, 1, $this->after([new ArticlePublished($id->toString())], 2));
+        $article = SnapshotArticle::fromSnapshot($id, $state, 1, $this->after([ArticlePublished::with($id)], 2));
 
         $this->assertInstanceOf(SnapshotArticle::class, $article);
         $this->assertTrue($article->published);
@@ -66,7 +66,7 @@ final class SnapshotBehaviorTest extends TestCase
             $id,
             ['_snapshot_version' => 1, 'title' => 'Hello', 'published' => false],
             1,
-            $this->after([new ArticlePublished($id->toString())], 2),
+            $this->after([ArticlePublished::with($id)], 2),
         );
 
         $this->assertInstanceOf(SnapshotArticle::class, $article);
@@ -78,13 +78,13 @@ final class SnapshotBehaviorTest extends TestCase
     {
         $id = ArticleId::generate();
 
-        $full = SnapshotArticle::reconstitute($id, $this->after([new ArticleDrafted($id->toString(), 'Hello'), new ArticlePublished($id->toString())], 2));
+        $full = SnapshotArticle::reconstitute($id, $this->after([ArticleDrafted::with($id, 'Hello'), ArticlePublished::with($id)], 2));
 
         $fromSnapshot = SnapshotArticle::fromSnapshot(
             $id,
             ['_snapshot_version' => 1, 'title' => 'Hello', 'published' => false],
             1,
-            $this->after([new ArticlePublished($id->toString())], 2),
+            $this->after([ArticlePublished::with($id)], 2),
         );
 
         $this->assertInstanceOf(SnapshotArticle::class, $full);
@@ -119,7 +119,7 @@ final class SnapshotBehaviorTest extends TestCase
         // snapshot at v3 + 1 applied tail event, so the header must claim exactly 3 + 1; it claims 3
         $this->expectExceptionMessageIsOrContains('expected exactly 4');
 
-        SnapshotArticle::fromSnapshot($id, $state, 3, $this->after([new ArticlePublished($id->toString())], 3));
+        SnapshotArticle::fromSnapshot($id, $state, 3, $this->after([ArticlePublished::with($id)], 3));
     }
 
     #[Test]
@@ -128,7 +128,7 @@ final class SnapshotBehaviorTest extends TestCase
         $id = ArticleId::generate();
         $state = ['_snapshot_version' => 1, 'title' => 'Hello', 'published' => false];
 
-        $article = SnapshotArticle::fromSnapshot($id, $state, 3, $this->after([new ArticlePublished($id->toString())], 4));
+        $article = SnapshotArticle::fromSnapshot($id, $state, 3, $this->after([ArticlePublished::with($id)], 4));
 
         $this->assertInstanceOf(SnapshotArticle::class, $article);
         $this->assertSame(4, $article->version());

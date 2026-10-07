@@ -57,7 +57,7 @@ final class AggregateExtensionContractTest extends TestCase
             $id,
             'Hello',
             3,
-            $this->after([new ArticlePublished($id->toString())], 4),
+            $this->after([ArticlePublished::with($id)], 4),
         );
 
         $this->assertSame('Hello', $article->title());

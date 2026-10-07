@@ -34,14 +34,14 @@ final class SnapshotArticle implements SnapshotableAggregateRoot
     public static function draft(ArticleId $id, string $title): self
     {
         $article = new self($id);
-        $article->recordThat(new ArticleDrafted($id->toString(), $title));
+        $article->recordThat(ArticleDrafted::with($id, $title));
 
         return $article;
     }
 
     public function publish(): void
     {
-        $this->recordThat(new ArticlePublished($this->identity()->toString()));
+        $this->recordThat(ArticlePublished::with($this->identity()));
     }
 
     public function title(): string

@@ -5,26 +5,25 @@ declare(strict_types=1);
 namespace Storm\Aggregate\Tests\Fixture;
 
 use Storm\Contracts\Message\DomainEvent;
+use Storm\Message\HasConstructablePayload;
 
 final class ArticleDrafted implements DomainEvent
 {
-    public function __construct(
-        public string $articleId,
-        public string $title,
-    ) {}
+    /** @use HasConstructablePayload<array{article_id: string, title: string}> */
+    use HasConstructablePayload;
+
+    public string $title { get => $this->payload['title']; }
 
     public function aggregateId(): string
     {
-        return $this->articleId;
+        return $this->payload['article_id'];
     }
 
-    public function toPayload(): array
+    public static function with(ArticleId $articleId, string $title): self
     {
-        return ['article_id' => $this->articleId, 'title' => $this->title];
-    }
-
-    public static function fromPayload(array $payload): static
-    {
-        return new self((string) $payload['article_id'], (string) $payload['title']);
+        return new self([
+            'article_id' => $articleId->toString(),
+            'title' => $title,
+        ]);
     }
 }

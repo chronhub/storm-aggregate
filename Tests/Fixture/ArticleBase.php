@@ -40,7 +40,7 @@ abstract class ArticleBase implements SnapshotableAggregateRoot
 
     public function publish(): void
     {
-        $this->recordThat(new ArticlePublished($this->identity()->toString()));
+        $this->recordThat(ArticlePublished::with($this->identity()));
     }
 
     public function title(): string

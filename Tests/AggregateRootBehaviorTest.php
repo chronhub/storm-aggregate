@@ -99,7 +99,7 @@ final class AggregateRootBehaviorTest extends TestCase
         $id = ArticleId::generate();
         $article = Article::reconstitute(
             $id,
-            $this->history([new ArticleDrafted($id->toString(), 'Hello'), new ArticlePublished($id->toString())], 2),
+            $this->history([ArticleDrafted::with($id, 'Hello'), ArticlePublished::with($id)], 2),
         );
 
         $this->assertInstanceOf(Article::class, $article);
@@ -114,7 +114,7 @@ final class AggregateRootBehaviorTest extends TestCase
         $id = ArticleId::generate();
         $article = Article::reconstitute(
             $id,
-            $this->history([new ArticleDrafted($id->toString(), 'Hello')], 1),
+            $this->history([ArticleDrafted::with($id, 'Hello')], 1),
         );
 
         $this->assertInstanceOf(Article::class, $article);
@@ -169,7 +169,7 @@ final class AggregateRootBehaviorTest extends TestCase
         $this->expectException(CorruptAggregateHistory::class);
 
         $id = ArticleId::generate();
-        Article::reconstitute($id, $this->history([new ArticleDrafted($id->toString(), 'partial')], 5));
+        Article::reconstitute($id, $this->history([ArticleDrafted::with($id, 'partial')], 5));
     }
 
     #[Test]
@@ -181,7 +181,7 @@ final class AggregateRootBehaviorTest extends TestCase
         $id = ArticleId::generate();
         Article::reconstitute(
             $id,
-            $this->history([new ArticleDrafted($id->toString(), 'Hello'), new ArticlePublished($id->toString())], 1),
+            $this->history([ArticleDrafted::with($id, 'Hello'), ArticlePublished::with($id)], 1),
         );
     }
 
@@ -202,7 +202,7 @@ final class AggregateRootBehaviorTest extends TestCase
         $id = ArticleId::generate();
         Article::reconstitute(
             $id,
-            $this->history([new ArticleDrafted($id->toString(), 'Hello'), new DoppelgangerArticlePublished($id->toString())], 2),
+            $this->history([ArticleDrafted::with($id, 'Hello'), new DoppelgangerArticlePublished($id->toString())], 2),
         );
     }
 
@@ -257,7 +257,7 @@ final class AggregateRootBehaviorTest extends TestCase
         // the guard's declared boundary: an untyped parameter cannot be told apart from a
         // collision, so dispatch trusts the declaration
         $id = ArticleId::generate();
-        $article = LenientArticle::reconstitute($id, $this->history([new ArticleDrafted($id->toString(), 'Hello')], 1));
+        $article = LenientArticle::reconstitute($id, $this->history([ArticleDrafted::with($id, 'Hello')], 1));
 
         $this->assertInstanceOf(LenientArticle::class, $article);
         $this->assertSame('Hello', $article->title);
@@ -307,7 +307,7 @@ final class AggregateRootBehaviorTest extends TestCase
             $this->fail('expected MissingApplyMethod');
         } catch (MissingApplyMethod $e) {
             $this->assertStringNotContainsString("\0", $e->getMessage());
-            $this->assertStringContainsString('\000', $e->getMessage());
+            $this->assertStringContainsString('\x00', $e->getMessage());
         }
     }
 

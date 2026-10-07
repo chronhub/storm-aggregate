@@ -199,8 +199,7 @@ trait AggregateRootBehavior
         $key = static::class.'|'.$event::class;
 
         if (! isset(self::$applyTargets[$key])) {
-            $parts = explode('\\', $event::class);
-            $method = 'apply'.end($parts);
+            $method = 'apply'.array_last(explode('\\', $event::class));
 
             if (! method_exists($this, $method)) {
                 throw MissingApplyMethod::on(static::class, $event::class, $this->identity->toString(), $method);
